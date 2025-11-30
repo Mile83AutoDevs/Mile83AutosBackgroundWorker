@@ -3,7 +3,7 @@ const delay = 4000;
 
 const _startBackgroundWorker = async () => {
   const api_endpoint_url = [
-    "https://mile83autos-api-backend-r49m.onrender.com/api/v1/checkServerHealth",
+    "https://mile83autos-api-backend-1.onrender.com/api/v1/checkServerHealth",
     "https://mile83autos-ai-node.onrender.com/Mile83LLMModel/api/v1/isAIServerOnline",
   ];
 
