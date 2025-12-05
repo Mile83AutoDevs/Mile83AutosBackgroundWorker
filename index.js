@@ -10,9 +10,9 @@ const _startBackgroundWorker = async () => {
   try {
     api_endpoint_url.map(async (endpointurl, i) => {
       const response = await axiosModule.get(endpointurl);
-      if (response) {
-        console.log(`Server responded :: ${new Date().toISOString()} `);
-        console.log(`Metric::`, response.data);
+      if (response.data) {
+        // console.log(`Server responded :: ${new Date().toISOString()} `);
+        console.log(`Metric::`, i + 1, "Server is Online");
       }
     });
   } catch (e) {
