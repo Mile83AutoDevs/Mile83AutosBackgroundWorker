@@ -1,16 +1,22 @@
 {
-  "name": "mile83_api_cron_job_worker",
+  "name": "package.json",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "mile83autos background cron job worker",
+  "main": "index.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "test": "test",
+    "start": "node index.mjs",
+    "dev": "node index.mjs"
   },
-  "keywords": [],
-  "author": "mile83autoTech",
-  "license": "ISC",
-  "description": "mile83auto server cron job worker",
+  "repository": {
+    "type": "git",
+    "url": "git"
+  },
+  "author": "",
+  "license": "MIT",
   "dependencies": {
-    "axios": "^1.13.2"
+    "axios": "^1.13.2",
+    "body-parser": "^2.2.1",
+    "express": "^5.2.1"
   }
 }
