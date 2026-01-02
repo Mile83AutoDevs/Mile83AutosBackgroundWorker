@@ -4,7 +4,7 @@
   "description": "mile83autos background cron job worker",
   "main": "index.mjs",
   "scripts": {
-    "test": "test",
+    "test": "node api.test.mjs",
     "start": "node index.mjs",
     "dev": "node index.mjs"
   },
