@@ -3,52 +3,77 @@ import express from "express";
 import bodyParser from "body-parser";
 import { api_endpoint_url } from "./endpoints.mjs";
 
-// define variables and params ;
+// ---------------- SETUP ----------------
 const server = express();
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(express.json());
-const delay = 4000; // 4 seconds ;
 
-// define background worker function ;
+const delay = 4000; // 4 seconds
+
+// ---------------- BACKGROUND WORKER ----------------
 const _startBackgroundWorker = async () => {
   try {
-    api_endpoint_url.map(async (endpointurl, i) => {
-      const response = await axios.get(endpointurl);
-      if (response.data) {
-        console.log(`Metric::`, i + 1, "Server is Online");
-      } else {
-        console.log(`Metrics:: ${i + 1} Server is offline`);
-      }
-    });
-  } catch (e) {
-    console.log("Something went wrong, could no start url cron job");
+    await Promise.all(
+      api_endpoint_url.map(async (endpointurl, i) => {
+        try {
+          const response = await axios.get(endpointurl);
+
+          if (response?.data) {
+            console.log(`Metric:: ${i + 1} Server is Online`);
+          } else {
+            console.log(`Metric:: ${i + 1} Server is Offline`);
+          }
+        } catch {
+          console.log(`Metric:: ${i + 1} Server is Offline`);
+        }
+      })
+    );
+  } catch (error) {
+    console.log("Something went wrong, could not start url cron job");
   }
 };
 
-setInterval(_startBackgroundWorker, delay); // run every 4 seconds ;
+// run every 4 seconds
+setInterval(_startBackgroundWorker, delay);
 
-// define routes ;
+// ---------------- ROUTES ----------------
 server.get("/isServerOnline", async (req, res) => {
-  api_endpoint_url.map(async (endpointurl, i) => {
-    try {
-      const response = await axios.get(endpointurl);
-      if (response.data) {
-        console.log(`Metric::`, i + 1, "Server is Online");
-        res.status(200).json({ message: "Background worker server is online" });
-      } else {
-        console.log(`Metrics:: ${i + 1} Server is offline`);
-        res.status(500).json({ message: `offline`, server: i + 1 });
-      }
-    } catch (e) {
-      res.status(500).json({ message: "Something went wrong" });
-      console.log(`Metrics:: ${i + 1} Server is offline`);
-    }
-  });
-  res.status(200).json({ message: "Background worker server is online" });
+  try {
+    const results = await Promise.all(
+      api_endpoint_url.map(async (endpointurl, i) => {
+        try {
+          const response = await axios.get(endpointurl);
+
+          return {
+            server: i + 1,
+            status: response?.data ? "online" : "offline",
+          };
+        } catch {
+          return {
+            server: i + 1,
+            status: "offline",
+          };
+        }
+      })
+    );
+
+    const hasOffline = results.some((r) => r.status === "offline");
+
+    return res.status(hasOffline ? 500 : 200).json({
+      message: hasOffline
+        ? "One or more servers are offline"
+        : "All servers are online",
+      results,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
 });
 
-// make server listen on port 9607 ;
-server.listen(9607, async () => {
-  console.log("Background cron server is running");
+// ---------------- START SERVER ----------------
+server.listen(9607, () => {
+  console.log("Background cron server is running on port 9607");
 });
