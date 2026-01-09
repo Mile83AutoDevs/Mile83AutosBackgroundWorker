@@ -6,7 +6,9 @@
   "scripts": {
     "test": "node api.test.mjs",
     "start": "node index.mjs",
-    "dev": "node index.mjs"
+    "start:backup": "node backupSeperateNode.mjs",
+    "dev": "node index.mjs",
+    "dev:backup": "node backupSeperateNode.mjs"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,10 @@
   "dependencies": {
     "axios": "^1.13.2",
     "body-parser": "^2.2.1",
-    "express": "^5.2.1"
+    "cloudinary": "^2.8.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "googleapis": "^170.0.0",
+    "node-cron": "^4.2.1"
   }
 }

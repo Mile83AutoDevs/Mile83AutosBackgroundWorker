@@ -9,16 +9,15 @@ server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(express.json());
 
-const delay = 4000; // 4 seconds
 
 // ---------------- BACKGROUND WORKER ----------------
 const _startBackgroundWorker = async () => {
   try {
+    console.log("endpoint background worker running...");
     await Promise.all(
       api_endpoint_url.map(async (endpointurl, i) => {
         try {
           const response = await axios.get(endpointurl);
-
           if (response?.data) {
             console.log(`Metric:: ${i + 1} Server is Online`);
           } else {
@@ -34,8 +33,7 @@ const _startBackgroundWorker = async () => {
   }
 };
 
-// run every 4 seconds
-setInterval(_startBackgroundWorker, delay);
+
 
 // ---------------- ROUTES ----------------
 server.get("/isServerOnline", async (req, res) => {
@@ -73,7 +71,15 @@ server.get("/isServerOnline", async (req, res) => {
   }
 });
 
+
+
+// ---------------- INITIALIZE BACKGROUND WORKER & CRON JOBS ----------------
+(async()=>{
+    await _startBackgroundWorker()
+})();
+
+
 // ---------------- START SERVER ----------------
-server.listen(9607, () => {
+server.listen(9607 || process.env.PORT, () => {
   console.log("Background cron server is running on port 9607");
 });
