@@ -5,6 +5,7 @@ import { api_endpoint_url } from "./endpoints.mjs";
 
 // ---------------- SETUP ----------------
 const server = express();
+const DELAY_BETWEEN_REQUESTS_MS = 1000; // 1 second delay between requests
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(express.json());
@@ -13,26 +14,21 @@ server.use(express.json());
 // ---------------- BACKGROUND WORKER ----------------
 const _startBackgroundWorker = async () => {
   try {
-    console.log("endpoint background worker running...");
+    console.log("Starting background worker to check server health...");
     await Promise.all(
       api_endpoint_url.map(async (endpointurl, i) => {
-        try {
           const response = await axios.get(endpointurl);
           if (response?.data) {
             console.log(`Metric:: ${i + 1} Server is Online`);
           } else {
             console.log(`Metric:: ${i + 1} Server is Offline`);
           }
-        } catch {
-          console.log(`Metric:: ${i + 1} Server is Offline`);
-        }
       })
     );
   } catch (error) {
-    console.log("Something went wrong, could not start url cron job");
+    console.log(`failed to connect to ${i+1}`);
   }
 };
-
 
 
 // ---------------- ROUTES ----------------
@@ -57,7 +53,6 @@ server.get("/isServerOnline", async (req, res) => {
     );
 
     const hasOffline = results.some((r) => r.status === "offline");
-
     return res.status(hasOffline ? 500 : 200).json({
       message: hasOffline
         ? "One or more servers are offline"
@@ -72,10 +67,11 @@ server.get("/isServerOnline", async (req, res) => {
 });
 
 
-
-// ---------------- INITIALIZE BACKGROUND WORKER & CRON JOBS ----------------
-(async()=>{
-    await _startBackgroundWorker()
+// ---------------- INITIALIZE BACKGROUND WORKER & CRON JOBS:: Run Background Jobs at interval every 2ms/hour ----------------
+(()=>{
+  setInterval(async()=>{
+    await _startBackgroundWorker();
+  },DELAY_BETWEEN_REQUESTS_MS * api_endpoint_url.length + 2000);
 })();
 
 

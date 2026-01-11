@@ -9,28 +9,15 @@ server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(express.json());
 
-// Run daily at 23:59
-const timeofNextBackup = "59 23 * * *";
-
-
-// ---------------- HELPERS ----------------
-const isLastDayOfMonth = () => {
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  return tomorrow.getDate() === 1;
-};
+// Run daily at 24 hours once a day;
+const timeofNextBackup = "0 0 * * *";
 
 // ---------------- CRON JOB ----------------
 const startBackupCronJob = () => {
-  console.log("Starting month-end backup cron job...");
+  console.log("Starting 24 hours backup cron job...");
   nodeCron.schedule(timeofNextBackup, async () => {
     try {
-      if (!isLastDayOfMonth()) {
-        console.log("Not month-end — skipping backup.");
-        return;
-      }
-      console.log("Running MONTH-END backup...");
+      console.log("Running 24 hours backup...");
       const databaseData = await callDatabaseData("production");
       if (!databaseData) {
         console.log("Could not fetch database data for backup.");
@@ -42,8 +29,8 @@ const startBackupCronJob = () => {
       );
       console.log(
         isBackupSuccess
-          ? "Month-end backup completed successfully."
-          : "Month-end backup failed."
+          ? "24 hours backup completed successfully."
+          : "24 hours backup failed."
       );
     } catch (error) {
       console.error("Cron execution error:", error.message);
@@ -56,10 +43,10 @@ const startBackupCronJob = () => {
   startBackupCronJob();
 })();
 
-// ---------------- KEEP PROCESS ALIVE (Railway) ----------------
+// ---------------- KEEP PROCESS ALIVE ----------------
 const PORT = process.env.PORT || 3000;
 
 
 server.listen(PORT, () => {
-  console.log(`Background cron server is running on port ${PORT}`);
+  console.log(`Background cron server is currently running on port ${PORT}`);
 });
