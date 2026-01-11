@@ -5,10 +5,8 @@
   "main": "index.mjs",
   "scripts": {
     "test": "node api.test.mjs",
-    "start": "node backupSeperateNode.mjs",
-    "start:backup": "node index.mjs",
-    "dev": "node backupSeperateNode.mjs",
-    "dev:backup": "node index.mjs"
+    "start": "node index.mjs",
+    "dev": "node index.mjs"
   },
   "repository": {
     "type": "git",
