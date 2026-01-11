@@ -26,7 +26,7 @@ const _startBackgroundWorker = async () => {
       })
     );
   } catch (error) {
-    console.log(`failed to connect to ${i+1}`);
+    console.log(`failed to connect server: ${error.message}`);
   }
 };
 
