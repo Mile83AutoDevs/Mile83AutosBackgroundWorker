@@ -1,35 +1,37 @@
+// ----------- DEFINE MODULES ----------------------
 import axios from "axios";
 import express from "express";
 import bodyParser from "body-parser";
 import { api_endpoint_url } from "./endpoints.mjs";
 
-// ---------------- SETUP ----------------
+// ---------------- SETUP/ MIDDLEWARE ----------------
 const server = express();
-const DELAY_BETWEEN_REQUESTS_MS = 1000; // 1 second delay between requests
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(express.json());
 
-
-// ---------------- BACKGROUND WORKER ----------------
+// ---------------- BACKGROUND WORKER FUNCTION ----------------
 const _startBackgroundWorker = async () => {
   try {
     console.log("Starting background worker to check server health...");
     await Promise.all(
       api_endpoint_url.map(async (endpointurl, i) => {
+        try {
           const response = await axios.get(endpointurl);
           if (response?.data) {
             console.log(`Metric:: ${i + 1} Server is Online`);
           } else {
             console.log(`Metric:: ${i + 1} Server is Offline`);
           }
-      })
+        } catch {
+          console.log(`Metric:: ${i + 1} Server is Offline`);
+        }
+      }),
     );
   } catch (error) {
     console.log(`failed to connect server: ${error.message}`);
   }
 };
-
 
 // ---------------- ROUTES ----------------
 server.get("/isServerOnline", async (req, res) => {
@@ -38,7 +40,6 @@ server.get("/isServerOnline", async (req, res) => {
       api_endpoint_url.map(async (endpointurl, i) => {
         try {
           const response = await axios.get(endpointurl);
-
           return {
             server: i + 1,
             status: response?.data ? "online" : "offline",
@@ -49,9 +50,8 @@ server.get("/isServerOnline", async (req, res) => {
             status: "offline",
           };
         }
-      })
+      }),
     );
-
     const hasOffline = results.some((r) => r.status === "offline");
     return res.status(hasOffline ? 500 : 200).json({
       message: hasOffline
@@ -66,14 +66,8 @@ server.get("/isServerOnline", async (req, res) => {
   }
 });
 
-
 // ---------------- INITIALIZE BACKGROUND WORKER & CRON JOBS:: Run Background Jobs at interval every 2ms/hour ----------------
-(()=>{
-  setInterval(async()=>{
-    await _startBackgroundWorker();
-  },DELAY_BETWEEN_REQUESTS_MS * api_endpoint_url.length + 2000);
-})();
-
+_startBackgroundWorker();
 
 // ---------------- START SERVER ----------------
 server.listen(9607 || process.env.PORT, () => {

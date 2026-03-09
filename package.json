@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "mile83autos background cron job worker",
   "main": "index.mjs",
+  "type": "module",
   "scripts": {
     "test": "node api.test.mjs",
     "start": "node index.mjs",
