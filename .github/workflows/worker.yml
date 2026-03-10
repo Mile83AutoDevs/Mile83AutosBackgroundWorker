@@ -1,25 +1,23 @@
-name: Background Worker
-
-# Run every 5 minutes
 on:
   schedule:
-    - cron: "*/2 * * * *"
-  workflow_dispatch: # allows manual run
+    - cron: "*/2 * * * *" # daily at midnight UTC
+  workflow_dispatch: # manual trigger if needed
 
 jobs:
-  run-worker:
+  run-backup:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "20"
-
       - name: Install dependencies
         run: npm install
 
-      - name: Run worker
+      - name: Run background worker
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN}}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID}}
         run: node index.mjs
