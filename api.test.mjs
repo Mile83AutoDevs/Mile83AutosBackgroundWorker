@@ -33,17 +33,17 @@ setTimeout(async () => {
 
     console.assert(
       response.data.message === "All servers are online",
-      "❌ Expected all servers online message"
+      "❌ Expected all servers online message",
     );
 
     console.assert(
       Array.isArray(response.data.results),
-      "❌ Results should be an array"
+      " Results should be an array",
     );
 
     console.assert(
       response.data.results.every((r) => r.status === "online"),
-      "❌ Not all servers are online"
+      "❌ Not all servers are online",
     );
 
     console.log("✅ TEST PASSED");
